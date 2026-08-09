@@ -1,0 +1,27 @@
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+
+# Personal workspace context
+MASTER_CONTEXT.md
+
+# Generated logs and user media
+logs/*
+!logs/.gitkeep
+references/*
+!references/.gitkeep
+
+# Local tooling
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.tmp
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
