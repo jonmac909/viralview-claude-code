@@ -1,0 +1,4 @@
+interface:
+  display_name: "Search Viral View Library"
+  short_description: "Find Viral View source ads for cloning"
+  default_prompt: "Use $search-library to find the best source videos for this product and let me choose one."

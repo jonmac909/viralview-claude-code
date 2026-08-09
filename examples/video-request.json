@@ -1,0 +1,13 @@
+{
+  "action": "generate",
+  "prompt": "Replace this with the approved scene prompt.",
+  "dialogue": "Replace this with the approved scene dialogue.",
+  "aspectRatio": "9:16",
+  "videoModel": "replace-with-a-public-video-model",
+  "quality": "standard",
+  "sound": true,
+  "durationSeconds": 5,
+  "imageUrls": [
+    "https://app.viralview.io/api/uploads/replace-with-owned-start-frame"
+  ]
+}

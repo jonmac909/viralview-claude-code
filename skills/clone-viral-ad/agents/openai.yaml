@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clone Viral Ad"
+  short_description: "Run the complete Viral View cloning flow"
+  default_prompt: "Use $clone-viral-ad to clone a viral ad for my product with approval before every paid generation batch."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Check Viral View Usage"
+  short_description: "Review usage and forecast generation spend"
+  default_prompt: "Use $usage-costs to show recent Viral View usage and estimate the next batch before I approve it."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Export Viral View Video"
+  short_description: "Export or retrieve a finished Viral View video"
+  default_prompt: "Use $export-video to export this Viral View project and return the final MP4 URL."

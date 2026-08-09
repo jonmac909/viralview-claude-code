@@ -1,0 +1,8 @@
+---
+description: Use Viral View agent skills and preserve spend and credential controls
+alwaysApply: true
+---
+
+Read `AGENTS.md` before using Viral View. Skills live under `skills/`.
+
+Use `python3 scripts/viralview.py` for API calls. Before every paid image or video generation batch, show estimated credits and get an explicit user `yes` in chat. Never print, log, or commit credentials.

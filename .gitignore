@@ -5,6 +5,7 @@
 
 # Personal workspace context
 MASTER_CONTEXT.md
+.viralview/
 
 # Generated logs and user media
 logs/*
@@ -16,6 +17,7 @@ references/*
 .DS_Store
 .idea/
 .vscode/
+.claude/settings.local.json
 *.swp
 *.tmp
 *.log

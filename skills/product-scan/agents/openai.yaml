@@ -1,0 +1,4 @@
+interface:
+  display_name: "Scan Product Page"
+  short_description: "Extract editable product details from a URL"
+  default_prompt: "Use $product-scan to scan this product page and show me the editable result."

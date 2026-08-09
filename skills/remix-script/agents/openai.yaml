@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remix Viral Ad Script"
+  short_description: "Rewrite scene dialogue within timing limits"
+  default_prompt: "Use $remix-script to adapt this viral ad script to my product and flag timing problems."

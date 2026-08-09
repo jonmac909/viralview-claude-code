@@ -1,0 +1,21 @@
+{
+  "mode": "fit-scene-dialogue",
+  "targetSceneNumber": 1,
+  "targetWordCount": 16,
+  "text": "Replace this source transcript with the approved project transcript.",
+  "sceneDialogues": {
+    "1": "This is the approved first-scene dialogue."
+  },
+  "scenes": [
+    {
+      "number": 1,
+      "startTime": 0,
+      "endTime": 5,
+      "description": "Opening hook",
+      "action": "Character introduces the problem",
+      "dialogue": "This is the approved first-scene dialogue."
+    }
+  ],
+  "productName": "Example Product",
+  "productDescription": "Replace this with reviewed product details."
+}

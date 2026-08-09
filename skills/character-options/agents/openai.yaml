@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Character Options"
+  short_description: "Generate and choose Viral View characters"
+  default_prompt: "Use $character-options to prepare three character choices and wait for my selection."
