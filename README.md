@@ -92,6 +92,19 @@ python3 skills/usage-costs/scripts/usage_costs.py recent
 
 The smoke script runs authentication, library search, and product scanning only. It does not submit image or video generation.
 
+## Go CLI and local MCP
+
+`go-cli/` is a generated Go implementation of the safe public API surface. It includes projects, Ad Library, account health and usage, existing-job polling, product scanning, and a stdio-only MCP server. It is source-backed in this repository and has not been published as an npm package, Homebrew formula, release artifact, or remote MCP service.
+
+```bash
+cd go-cli
+make build-all
+export VIRALVIEW_API_KEY="vv_live_..."
+./bin/viralview-pp-cli library search --query claymation --limit 12 --json
+```
+
+The generated surface intentionally excludes paid image and video submission. Continue using `scripts/viralview.py` and its `--confirm-paid YES` guard for those operations. See [the Go CLI guide](go-cli/README.md) and [its source contract](specs/viralview-printing-press.yaml).
+
 ## Security
 
 - The only supported credential is `VIRALVIEW_API_KEY` in `.env`.

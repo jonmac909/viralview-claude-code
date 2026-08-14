@@ -12,6 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_PARTS = {".git", ".viralview", "__pycache__", ".venv", "venv", "logs", "references"}
 SKIP_NAMES = {".env"}
+# Ignored Go build and Printing Press verification binaries are not public source.
+# Their compiled dependency strings can resemble credentials to a byte scanner.
+SKIP_PATH_PREFIXES = (Path("go-cli/bin"), Path("go-cli/build"), Path("go-cli/go-cli"))
 PATTERNS = {
     "Viral View API key": re.compile(rb"vv_live_[0-9a-fA-F]{32}"),
     "GitHub token": re.compile(rb"gh[pousr]_[A-Za-z0-9_]{20,}"),
@@ -29,7 +32,12 @@ def public_files() -> list[Path]:
     files = []
     for path in ROOT.rglob("*"):
         relative = path.relative_to(ROOT)
-        if not path.is_file() or path.name in SKIP_NAMES or any(part in SKIP_PARTS for part in relative.parts):
+        if (
+            not path.is_file()
+            or path.name in SKIP_NAMES
+            or any(part in SKIP_PARTS for part in relative.parts)
+            or any(relative == prefix or prefix in relative.parents for prefix in SKIP_PATH_PREFIXES)
+        ):
             continue
         files.append(path)
     return files
@@ -72,7 +80,15 @@ def main() -> int:
     )
     scan_bytes("Git history", history.stdout, findings)
 
-    for ignored_path in [".env", "MASTER_CONTEXT.md", "logs/viralview-api.jsonl", "references/private.png"]:
+    for ignored_path in [
+        ".env",
+        "MASTER_CONTEXT.md",
+        "logs/viralview-api.jsonl",
+        "references/private.png",
+        "go-cli/bin/viralview-pp-cli",
+        "go-cli/build/stage/bin/viralview-pp-cli",
+        "go-cli/go-cli",
+    ]:
         ignored = subprocess.run(
             ["git", "check-ignore", "-q", ignored_path],
             cwd=ROOT,

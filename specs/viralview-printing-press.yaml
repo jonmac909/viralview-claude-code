@@ -1,0 +1,261 @@
+name: viralview
+description: "Safe local CLI and MCP for the Viral View public API"
+version: "0.1.0"
+base_url: "https://app.viralview.io"
+health_check_path: "/api/ugc/kie-status"
+
+auth:
+  type: bearer_token
+  header: Authorization
+  format: "Bearer {token}"
+  env_vars:
+    - VIRALVIEW_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/viralview-pp-cli/config.toml"
+
+# The public API requires explicit in-chat approval for paid image and video
+# submissions. Those endpoints deliberately stay in scripts/viralview.py,
+# which enforces --confirm-paid YES. This generated surface is safe to expose
+# through a local stdio MCP because it contains only inspection, polling, and
+# non-billed product-scanning commands.
+learn:
+  disabled: true
+
+resources:
+  projects:
+    description: "Inspect saved Viral View projects"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/ugc/project"
+        description: "List owned projects"
+        example: "  viralview-pp-cli projects list --json"
+        response:
+          type: array
+          item: Project
+        response_path: projects
+      get:
+        method: GET
+        path: "/api/ugc/project"
+        description: "Load one owned project"
+        example: "  viralview-pp-cli projects get --id PROJECT_ID --json"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Owned Viral View project ID"
+        response:
+          type: object
+          item: APIResponse
+
+  library:
+    description: "Search approved Viral View source ads"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/ugc/ad-library"
+        description: "Search the approved Ad Library"
+        example: "  viralview-pp-cli library search --query claymation --style animation --limit 12 --json"
+        params:
+          - name: query
+            type: string
+            description: "Words to match in the ad library"
+          - name: style
+            type: string
+            description: "Optional visual style filter"
+          - name: limit
+            type: int
+            default: 12
+            description: "Maximum results, capped at 24"
+          - name: cursor
+            type: string
+            description: "Cursor from a prior library search"
+        response:
+          type: array
+          item: LibraryItem
+        response_path: items
+        pagination:
+          type: cursor
+          limit_param: limit
+          cursor_param: cursor
+          next_cursor_path: nextCursor
+      get:
+        method: GET
+        path: "/api/ugc/ad-library/{id}"
+        description: "Load one approved source ad"
+        example: "  viralview-pp-cli library get AD_ID --json"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Approved ad-library item ID"
+        response:
+          type: object
+          item: APIResponse
+
+  account:
+    description: "Inspect account health, balance, and usage"
+    endpoints:
+      balance:
+        method: GET
+        path: "/api/ugc/kie-balance"
+        description: "Read available generation-provider credits"
+        example: "  viralview-pp-cli account balance --json"
+        response:
+          type: object
+          item: Balance
+      status:
+        method: GET
+        path: "/api/ugc/kie-status"
+        description: "Check generation-provider reachability"
+        example: "  viralview-pp-cli account status --json"
+        response:
+          type: object
+          item: ProviderStatus
+      usage:
+        method: GET
+        path: "/api/ugc/usage"
+        description: "List recent generation and export usage"
+        example: "  viralview-pp-cli account usage --limit 25 --json"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Maximum usage events, capped at 100"
+        response:
+          type: array
+          item: UsageEvent
+        response_path: events
+
+  task_status:
+    description: "Poll existing Viral View jobs without submitting another job"
+    endpoints:
+      extraction_status:
+        method: GET
+        path: "/api/ugc/extract-video"
+        description: "Poll an existing source-link extraction job"
+        example: "  viralview-pp-cli task-status extraction-status --job-id JOB_ID --json"
+        params:
+          - name: jobId
+            flag_name: job-id
+            type: string
+            required: true
+            description: "Existing extraction job ID"
+        response:
+          type: object
+          item: JobStatus
+      image_status:
+        method: GET
+        path: "/api/ugc/generate-overlay"
+        description: "Poll an existing paid image job without spending again"
+        example: "  viralview-pp-cli task-status image-status --task-id TASK_ID --json"
+        params:
+          - name: taskId
+            flag_name: task-id
+            type: string
+            required: true
+            description: "Existing image task ID"
+          - name: sourceImageUrl
+            flag_name: source-image-url
+            type: string
+            description: "Optional source image URL used to recover task state"
+        response:
+          type: object
+          item: JobStatus
+      export_status:
+        method: GET
+        path: "/api/ugc/stitch-videos"
+        description: "Poll an existing export job"
+        example: "  viralview-pp-cli task-status export-status --job-id JOB_ID --json"
+        params:
+          - name: jobId
+            flag_name: job-id
+            type: string
+            required: true
+            description: "Existing export job ID"
+        response:
+          type: object
+          item: JobStatus
+
+  product:
+    description: "Inspect a product page before creating or generating anything"
+    endpoints:
+      scan:
+        method: POST
+        path: "/api/ugc/scan-product"
+        description: "Extract editable product facts from a public product URL"
+        example: "  viralview-pp-cli product --url https://example.com --json"
+        body:
+          - name: productUrl
+            flag_name: url
+            type: string
+            required: true
+            description: "Public product page URL"
+        response:
+          type: object
+          item: APIResponse
+
+types:
+  APIResponse:
+    fields:
+      - name: success
+        type: bool
+  Project:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: step
+        type: int
+  LibraryItem:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: source
+        type: string
+      - name: style
+        type: string
+      - name: durationSec
+        type: float
+  Balance:
+    fields:
+      - name: credits
+        type: float
+      - name: usd
+        type: float
+      - name: checkedAt
+        type: string
+  ProviderStatus:
+    fields:
+      - name: status
+        type: string
+      - name: checkedAt
+        type: string
+      - name: message
+        type: string
+  UsageEvent:
+    fields:
+      - name: timestamp
+        type: string
+      - name: kind
+        type: string
+      - name: model
+        type: string
+      - name: sceneCount
+        type: int
+  JobStatus:
+    fields:
+      - name: status
+        type: string
+      - name: progress
+        type: float
+      - name: taskId
+        type: string
+      - name: jobId
+        type: string

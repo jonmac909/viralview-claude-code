@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "viralview-pp-cli"
+display_name = "Viralview"
+description = "Safe local CLI and MCP for the Viral View public API"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/viralview-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+VIRALVIEW_API_KEY = true

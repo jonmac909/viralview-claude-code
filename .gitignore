@@ -22,6 +22,11 @@ references/*
 *.tmp
 *.log
 
+# Local Go CLI build outputs
+go-cli/build/
+go-cli/bin/
+go-cli/go-cli
+
 # Python
 __pycache__/
 *.py[cod]
