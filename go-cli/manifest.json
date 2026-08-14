@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "viralview-pp-mcp",
+  "display_name": "Viralview",
+  "version": "0.1.0",
+  "description": "Safe local CLI and MCP for the Viral View public API",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/viralview-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/viralview-pp-mcp",
+      "args": [],
+      "env": {
+        "VIRALVIEW_API_KEY": "${user_config.viralview_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "viralview_api_key": {
+      "type": "string",
+      "title": "Viral View API key",
+      "description": "Developer key used only by the local Viral View MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

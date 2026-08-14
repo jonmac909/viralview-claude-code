@@ -1,0 +1,199 @@
+{
+  "api_name": "viralview",
+  "base_url": "https://app.viralview.io",
+  "description": "Safe local CLI and MCP for the Viral View public API",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "visible",
+    "orchestration": "endpoint-mirror"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {VIRALVIEW_API_KEY}",
+    "env_vars": [
+      "VIRALVIEW_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "VIRALVIEW_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_balance",
+      "description": "Read available generation-provider credits. Returns the Balance.",
+      "method": "GET",
+      "path": "/api/ugc/kie-balance",
+      "params": []
+    },
+    {
+      "name": "account_status",
+      "description": "Check generation-provider reachability. Returns the ProviderStatus.",
+      "method": "GET",
+      "path": "/api/ugc/kie-status",
+      "params": []
+    },
+    {
+      "name": "account_usage",
+      "description": "List recent generation and export usage. Optional: limit (default: 25). Returns array of UsageEvent.",
+      "method": "GET",
+      "path": "/api/ugc/usage",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum usage events, capped at 100"
+        }
+      ]
+    },
+    {
+      "name": "library_get",
+      "description": "Load one approved source ad. Required: id. Returns the APIResponse.",
+      "method": "GET",
+      "path": "/api/ugc/ad-library/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Approved ad-library item ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "library_search",
+      "description": "Search the approved Ad Library. Optional: query, style, limit (default: 12) (plus 1 more). Returns array of LibraryItem.",
+      "method": "GET",
+      "path": "/api/ugc/ad-library",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Words to match in the ad library"
+        },
+        {
+          "name": "style",
+          "type": "string",
+          "location": "query",
+          "description": "Optional visual style filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum results, capped at 24"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from a prior library search"
+        }
+      ]
+    },
+    {
+      "name": "product_scan",
+      "description": "Extract editable product facts from a public product URL. Required: url. Returns the new APIResponse.",
+      "method": "POST",
+      "path": "/api/ugc/scan-product",
+      "params": [
+        {
+          "name": "url",
+          "wire_name": "productUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Public product page URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Load one owned project. Required: id. Returns the APIResponse.",
+      "method": "GET",
+      "path": "/api/ugc/project",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Owned Viral View project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List owned projects. Returns array of Project.",
+      "method": "GET",
+      "path": "/api/ugc/project",
+      "params": []
+    },
+    {
+      "name": "task_status_export_status",
+      "description": "Poll an existing export job. Required: job-id. Returns the JobStatus.",
+      "method": "GET",
+      "path": "/api/ugc/stitch-videos",
+      "params": [
+        {
+          "name": "job-id",
+          "wire_name": "jobId",
+          "type": "string",
+          "location": "query",
+          "description": "Existing export job ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "task_status_extraction_status",
+      "description": "Poll an existing source-link extraction job. Required: job-id. Returns the JobStatus.",
+      "method": "GET",
+      "path": "/api/ugc/extract-video",
+      "params": [
+        {
+          "name": "job-id",
+          "wire_name": "jobId",
+          "type": "string",
+          "location": "query",
+          "description": "Existing extraction job ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "task_status_image_status",
+      "description": "Poll an existing paid image job without spending again. Required: task-id. Optional: source-image-url. Returns the JobStatus.",
+      "method": "GET",
+      "path": "/api/ugc/generate-overlay",
+      "params": [
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "query",
+          "description": "Existing image task ID",
+          "required": true
+        },
+        {
+          "name": "source-image-url",
+          "wire_name": "sourceImageUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Optional source image URL used to recover task state"
+        }
+      ]
+    }
+  ]
+}
