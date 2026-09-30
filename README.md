@@ -54,7 +54,7 @@ The agent scans the product, presents source candidates, asks you to approve sce
 
 ## Mandatory spend control
 
-Every paid image or video batch requires its own confirmation:
+Every paid image or video batch requires its own confirmation. Product cutouts and final exports use the same fresh quote and confirmation rule:
 
 1. The agent shows the model, item count, per-item estimate, and total estimated credits.
 2. You reply `yes` in the current chat.
@@ -94,7 +94,7 @@ The smoke script runs authentication, library search, and product scanning only.
 
 ## Go CLI and local MCP
 
-`go-cli/` is a generated Go implementation of the safe public API surface. It includes projects, Ad Library, account health and usage, existing-job polling, product scanning, and a stdio-only MCP server. It is source-backed in this repository and has not been published as an npm package, Homebrew formula, release artifact, or remote MCP service.
+`go-cli/` is a generated Go CLI and stdio MCP server for the Viral View API. It includes the V6 project workflow with quote-gated paid steps. It is source-backed in this repository and has not been published as an npm package, Homebrew formula, release artifact, or remote MCP service.
 
 ```bash
 cd go-cli
@@ -103,7 +103,7 @@ export VIRALVIEW_API_KEY="vv_live_..."
 ./bin/viralview-pp-cli library search --query claymation --limit 12 --json
 ```
 
-The generated surface intentionally excludes paid image and video submission. Continue using `scripts/viralview.py` and its `--confirm-paid YES` guard for those operations. See [the Go CLI guide](go-cli/README.md) and [its source contract](specs/viralview-printing-press.yaml).
+Paid MCP tools require a fresh quote and its one-time approval token; the tool descriptions and annotations ask the host to obtain user approval before dispatch. The Python client keeps `--confirm-paid YES` as an additional local guard. See [the Go CLI guide](go-cli/README.md) and [its source contract](specs/viralview-printing-press.yaml).
 
 ## Security
 

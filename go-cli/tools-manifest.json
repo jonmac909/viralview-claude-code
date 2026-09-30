@@ -1,7 +1,7 @@
 {
   "api_name": "viralview",
   "base_url": "https://app.viralview.io",
-  "description": "Safe local CLI and MCP for the Viral View public API",
+  "description": "Viral View V6 workflow MCP and local CLI with per-batch paid approval",
   "mcp_ready": "full",
   "http_transport": "standard",
   "mcp": {
@@ -32,14 +32,26 @@
       "description": "Read available generation-provider credits. Returns the Balance.",
       "method": "GET",
       "path": "/api/ugc/kie-balance",
-      "params": []
+      "params": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "account_status",
       "description": "Check generation-provider reachability. Returns the ProviderStatus.",
       "method": "GET",
       "path": "/api/ugc/kie-status",
-      "params": []
+      "params": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "account_usage",
@@ -53,7 +65,13 @@
           "location": "query",
           "description": "Maximum usage events, capped at 100"
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "library_get",
@@ -68,7 +86,13 @@
           "description": "Approved ad-library item ID",
           "required": true
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "library_search",
@@ -100,7 +124,13 @@
           "location": "query",
           "description": "Cursor from a prior library search"
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "product_scan",
@@ -116,7 +146,13 @@
           "description": "Public product page URL",
           "required": true
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "projects_get",
@@ -131,14 +167,26 @@
           "description": "Owned Viral View project ID",
           "required": true
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "projects_list",
       "description": "List owned projects. Returns array of Project.",
       "method": "GET",
       "path": "/api/ugc/project",
-      "params": []
+      "params": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "task_status_export_status",
@@ -154,7 +202,13 @@
           "description": "Existing export job ID",
           "required": true
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "task_status_extraction_status",
@@ -170,7 +224,13 @@
           "description": "Existing extraction job ID",
           "required": true
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     },
     {
       "name": "task_status_image_status",
@@ -193,7 +253,1055 @@
           "location": "query",
           "description": "Optional source image URL used to recover task state"
         }
-      ]
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "project_create",
+      "description": "Create or save a project using the app project snapshot contract",
+      "method": "POST",
+      "path": "/api/ugc/project",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "project_status",
+      "description": "Load computed V6 project workflow context and next actions",
+      "method": "GET",
+      "path": "/api/v3/project/{id}/context",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "source_matches",
+      "description": "Rank Ad Library candidates from product facts and source-match context",
+      "method": "POST",
+      "path": "/api/ugc/source-matches",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "source_select",
+      "description": "Select a library or supplied source with select_source or set_supplied_source intent",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/intent",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "source_extract",
+      "description": "Start extracting a linked source video before analysis",
+      "method": "POST",
+      "path": "/api/ugc/extract-video",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "source_analysis",
+      "description": "Analyze source scenes, timing, claims, proof, hook, and transcript",
+      "method": "POST",
+      "path": "/api/ugc/analyze-video",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "source_analysis_save",
+      "description": "Persist supplied-source transcript and scene timing with save_supplied_source_enrichment intent",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/intent",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "script_draft",
+      "description": "Draft or rewrite dialogue from source analysis and target product facts",
+      "method": "POST",
+      "path": "/api/ugc/rewrite-script",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "script_draft_save",
+      "description": "Persist script text and scenes with save_script_draft intent",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/intent",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "script_edit_line",
+      "description": "Edit script dialogue with edit_script intent",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/intent",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "script_approve",
+      "description": "Approve the saved script beat with approve intent",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/intent",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "script_score",
+      "description": "Score the saved project script",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/script-score",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "characters_quote",
+      "description": "Quote action characters before character-dispatch",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/quote",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false,
+      "quote_action": "characters"
+    },
+    {
+      "name": "characters_generate",
+      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by characters_quote before calling. Paid character dispatch. Requires X-ViralView-Approval from the matching quote payload",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/character-dispatch",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        },
+        {
+          "name": "approvalToken",
+          "type": "string",
+          "location": "tool",
+          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "paid": true,
+      "quote_action": "characters",
+      "approval_header": "X-ViralView-Approval"
+    },
+    {
+      "name": "character_lock",
+      "description": "Save a reusable character identity lock",
+      "method": "POST",
+      "path": "/api/ugc/lock-character",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "character_saved_list",
+      "description": "List saved character candidates",
+      "method": "GET",
+      "path": "/api/v3/characters",
+      "params": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "character_use_saved",
+      "description": "Reuse a saved character with reuse_saved_character intent",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/intent",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "frames_quote",
+      "description": "Quote frames or frame_remake before image dispatch",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/quote",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "tool",
+          "description": "frames or frame_remake",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false,
+      "quote_action": "frames|frame_remake"
+    },
+    {
+      "name": "frames_generate",
+      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by frames_quote before calling. Paid V6 frame dispatch. Requires X-ViralView-Approval from the matching quote payload",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/frames",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        },
+        {
+          "name": "approvalToken",
+          "type": "string",
+          "location": "tool",
+          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "paid": true,
+      "quote_action": "frames",
+      "approval_header": "X-ViralView-Approval"
+    },
+    {
+      "name": "frame_edit",
+      "description": "Prepare a scene frame prompt without dispatching image generation",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/frames",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "videos_quote",
+      "description": "Quote scene_videos, scene_regenerate, or lip_redo before video dispatch",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/quote",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "tool",
+          "description": "scene_videos or scene_regenerate",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false,
+      "quote_action": "scene_videos|scene_regenerate|lip_redo"
+    },
+    {
+      "name": "videos_generate",
+      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by videos_quote before calling. Paid V6 video dispatch. Requires X-ViralView-Approval from the matching quote payload",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/generate",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        },
+        {
+          "name": "approvalToken",
+          "type": "string",
+          "location": "tool",
+          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "paid": true,
+      "quote_action": "scene_videos|scene_regenerate",
+      "approval_header": "X-ViralView-Approval"
+    },
+    {
+      "name": "auto_quote",
+      "description": "Quote the persisted V6 auto plan. Include the same stable requestId and workspacePath you will send to auto_start; the app derives paid items from the saved project.",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/quote",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false,
+      "quote_action": "auto"
+    },
+    {
+      "name": "auto_start",
+      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by auto_quote before calling. Pass the identical payload and its approvalToken.",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/auto/start",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        },
+        {
+          "name": "approvalToken",
+          "type": "string",
+          "location": "tool",
+          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "paid": true,
+      "quote_action": "auto",
+      "approval_header": "X-ViralView-Approval"
+    },
+    {
+      "name": "auto_stop",
+      "description": "Stop an active V6 auto run",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/auto/stop",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "ad_score",
+      "description": "Score a completed project video",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/ad-score",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "export_quote",
+      "description": "Quote action export before final rendering",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/quote",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false,
+      "quote_action": "export"
+    },
+    {
+      "name": "export_start",
+      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by export_quote before calling. Paid final export. Requires X-ViralView-Approval from the matching quote payload",
+      "method": "POST",
+      "path": "/api/ugc/stitch-videos",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        },
+        {
+          "name": "approvalToken",
+          "type": "string",
+          "location": "tool",
+          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "paid": true,
+      "quote_action": "export",
+      "approval_header": "X-ViralView-Approval"
+    },
+    {
+      "name": "export_status",
+      "description": "Poll the saved export job for an owned project",
+      "method": "GET",
+      "path": "/api/v3/project/{id}/export-status",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "export_download",
+      "description": "Download the caller's own exported video via the developer API upload route",
+      "method": "GET",
+      "path": "/api/uploads/{key}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "downloadUrl",
+          "type": "string",
+          "location": "tool",
+          "description": "Relative same-origin /api/uploads path from export status",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "meta_ad_library_search",
+      "description": "Search the Meta Ad Library",
+      "method": "GET",
+      "path": "/api/ugc/meta-ad-library/search",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "caption_redo",
+      "description": "Run the existing caption redo operation",
+      "method": "POST",
+      "path": "/api/ugc/redo-captions",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "editor_update",
+      "description": "Save the latest V6 project/editor snapshot through the app project save API.",
+      "method": "POST",
+      "path": "/api/ugc/project",
+      "params": [
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; paid calls must reuse the exact quote payload",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
+    },
+    {
+      "name": "intent_retry_quote",
+      "description": "Quote a persisted character, frame, video, or export retry before retry intent",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/quote",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; for paid calls use exactly the same object as the matching quote",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false,
+      "quote_action": "intent_retry"
+    },
+    {
+      "name": "intent_retry",
+      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by intent_retry_quote before calling. Retry a persisted paid V6 action with the matching payload and token.",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/intent",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; for paid calls use exactly the same object as the matching quote",
+          "required": true
+        },
+        {
+          "name": "approvalToken",
+          "type": "string",
+          "location": "tool",
+          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "paid": true,
+      "quote_action": "intent_retry",
+      "approval_header": "X-ViralView-Approval"
+    },
+    {
+      "name": "product_cutout_quote",
+      "description": "Quote removal of a selected product image background",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/quote",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; for paid calls use exactly the same object as the matching quote",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false,
+      "quote_action": "product_cutout"
+    },
+    {
+      "name": "product_cutout",
+      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by product_cutout_quote before calling. Remove the background from a selected product image using the exact quoted payload.",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/product-cutout",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; for paid calls use exactly the same object as the matching quote",
+          "required": true
+        },
+        {
+          "name": "approvalToken",
+          "type": "string",
+          "location": "tool",
+          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "paid": true,
+      "quote_action": "product_cutout",
+      "approval_header": "X-ViralView-Approval"
+    },
+    {
+      "name": "product_cutout_status",
+      "description": "Poll product image background removal without starting a new job",
+      "method": "POST",
+      "path": "/api/v3/project/{id}/product-cutout",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "tool",
+          "description": "Owned Viral View project ID",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "tool",
+          "description": "JSON request body; for paid calls use exactly the same object as the matching quote",
+          "required": true
+        }
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "paid": false
     }
   ]
 }

@@ -6,12 +6,17 @@ from __future__ import annotations
 import ast
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+WINDOWS_BASH_CANDIDATES = [
+    Path("C:/Program Files/Git/bin/bash.exe"),
+    Path("C:/Program Files (x86)/Git/bin/bash.exe"),
+]
 SKILLS = [
     "clone-viral-ad",
     "search-library",
@@ -20,6 +25,8 @@ SKILLS = [
     "character-options",
     "remix-script",
     "usage-costs",
+    "street-interview-remake",
+    "product-swap-rewrite",
 ]
 
 
@@ -65,7 +72,10 @@ def main() -> int:
         validate_python()
 
         shell_files = [str(path) for path in (ROOT / "scripts").glob("*.sh")]
-        subprocess.run(["bash", "-n", *shell_files], check=True)
+        bash = next((str(path) for path in WINDOWS_BASH_CANDIDATES if path.is_file()), None) or shutil.which("bash")
+        if not bash:
+            fail("Bash is required to validate the shell scripts.")
+        subprocess.run([bash, "-n", *shell_files], check=True)
         subprocess.run(
             [sys.executable, "-m", "unittest", "discover", "-s", "tests"],
             cwd=ROOT,

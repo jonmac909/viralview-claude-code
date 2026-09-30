@@ -1,22 +1,19 @@
 ---
 name: export-video
-description: Retrieve an existing Viral View project's finished video or submit and poll a final stitch export from approved scene videos. Use when the user asks for the final MP4, wants to re-export a project, or needs the download URL for a completed clone.
+description: Retrieve a completed Viral View V6 export or start a new quote-approved export from the active project's approved scene videos.
 ---
 
 # Export a video
 
-Check for an existing export first:
+Use `project_status` to confirm the project and existing final output. If an export is already complete, return its saved URL without starting another render.
 
-```bash
-python3 skills/export-video/scripts/export_video.py fetch --project-id PROJECT_ID
-```
+For a new export:
 
-If a finished `stitched_video_url` exists, return it without starting another render.
+1. Build the app's export payload from approved scene videos and current editor state.
+2. Call `export_quote` with the exact payload planned for export.
+3. Show estimated credits, items, seconds, and expiry. Ask for a fresh explicit `yes` in chat and wait.
+4. After approval, call `export_start` with the identical payload and returned `approvalToken`. Never place the token in the body, a file, or a log.
+5. Poll `export_status` using the same project until the job is complete or terminal.
+6. Return the final URL. Call `export_download` with the same-origin `/api/uploads/...` path when the user asks for the file.
 
-For a new export, build a JSON payload from approved scene videos and run:
-
-```bash
-python3 skills/export-video/scripts/export_video.py export --payload export.json --confirm-export YES
-```
-
-The script starts `/api/ugc/stitch-videos`, resumes an async job when returned, and prints the final MP4 URL. Do not export draft or unapproved scene variants. Do not start a second job while the first job ID is active.
+Do not export draft or unapproved scene variants. Do not start another export while a job is active. A retry or changed timeline needs a new quote and a new user `yes`.

@@ -1,20 +1,21 @@
 # Viral View Go CLI
 
-This is a locally generated Go CLI and stdio MCP server for the safe Viral View public API surface. It was generated with [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press) from the checked-in [source contract](../specs/viralview-printing-press.yaml).
+This is a locally generated Go CLI and stdio MCP server for the Viral View API. Its endpoint contract comes from [the checked-in Printing Press spec](../specs/viralview-printing-press.yaml); the V6 MCP approval handlers are a hand-written local integration because the Printing Press generator is not installed in the workspace.
 
 It is source-backed in this repository. It has not been published to the Printing Press library, npm, Homebrew, GitHub Releases, or as a remote MCP service.
 
 ## Scope
 
-The CLI supports these non-billed workflows:
+The CLI and MCP support these workflows:
 
 - List and load saved projects.
 - Search and inspect the approved Ad Library.
 - Check provider balance, status, and recent usage.
-- Poll existing extraction, image, and export jobs without submitting another job.
+- Poll existing extraction, image, video, and export jobs without submitting another paid job.
 - Scan a public product page for editable facts.
+- Select and analyze source videos, draft/edit/approve scripts, manage characters, prepare and generate frames, generate videos, run/stop automation, score projects, update the editor snapshot, and export/download project videos.
 
-Paid image and video submission endpoints are intentionally excluded. The public API requires an explicit in-chat approval before every paid batch. Use the existing [`scripts/viralview.py`](../scripts/viralview.py) client for those operations because it enforces `--confirm-paid YES`.
+Paid generation, product cutout, retry, and export tools use a read-only quote followed by a separate paid call. The paid call requires the short-lived `approvalToken` returned by that quote and sends it only in `X-ViralView-Approval`. MCP annotations and descriptions flag paid tools for user approval; the app's one-time token and daily cap enforce the server-side boundary. `scripts/viralview.py` also keeps `--confirm-paid YES` as an extra local guard.
 
 ## Quick Start
 
@@ -70,7 +71,7 @@ Use `--agent` when an agent or script consumes the result. It enables JSON, comp
 ./bin/viralview-pp-cli library search --query claymation --limit 12 --agent --select items,nextCursor
 ```
 
-Do not use an agent command to submit paid image or video generation. That approval-gated work remains in `scripts/viralview.py`.
+For a paid MCP tool, call its paired quote tool, show the estimate, wait for an explicit `yes` in the current chat, then call the paid tool with the exact quoted payload and approval token. Every retry or changed batch needs a fresh quote and a new `yes`.
 
 ## Health Check
 
@@ -101,7 +102,7 @@ Build it with `make build-all`, then configure an MCP host with the absolute loc
 }
 ```
 
-The MCP tool surface matches this module's safe 11-command contract. It cannot submit paid image or video generation.
+The MCP exposes 49 tools: the 11 existing account, project, library, scan, and job-status tools plus the V6 project workflow. See [`tools-manifest.json`](tools-manifest.json) for routes, paid status, and annotations. `editor_update` saves the app's whole project snapshot because the inspected app has no dedicated trim, scene-delete, or caption-style endpoints. Local binary upload is not implemented; use a media URL already uploaded to the project.
 
 ## Recipes
 

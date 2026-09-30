@@ -1,6 +1,6 @@
 ---
 name: usage-costs
-description: Read recent Viral View generation usage, summarize local API activity, and forecast image or video batch credits from known per-item cost data. Use before every paid generation batch, when the user asks about spend or balance, or when a retry needs a fresh estimate.
+description: Read recent Viral View usage and balance, then use the V6 quote tools to estimate the exact image, video, automatic, or export batch before requesting approval.
 ---
 
 # usage-costs

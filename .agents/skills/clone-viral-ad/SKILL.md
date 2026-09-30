@@ -1,6 +1,6 @@
 ---
 name: clone-viral-ad
-description: Orchestrate the complete Viral View product-to-video pipeline from a product URL and source ad through product review, source selection, scene analysis, script remixing, character choice, frame and video generation, and final export. Use when the user asks to clone, remake, adapt, or recreate a viral ad for a product with Viral View.
+description: Orchestrate the complete Viral View V6 product-to-video flow with project review, source selection, scene analysis, script approval, characters, frames, videos, and quote-gated export. Use when the user asks to clone or remake an ad.
 ---
 
 # clone-viral-ad

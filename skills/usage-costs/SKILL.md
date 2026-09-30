@@ -1,28 +1,12 @@
 ---
 name: usage-costs
-description: Read recent Viral View generation usage, summarize local API activity, and forecast image or video batch credits from known per-item cost data. Use before every paid generation batch, when the user asks about spend or balance, or when a retry needs a fresh estimate.
+description: Read recent Viral View usage and balance, then use the V6 quote tools to estimate the exact image, video, automatic, or export batch before requesting approval.
 ---
 
-# Check usage and forecast spend
+# Check usage and quote spend
 
-Read recent server usage and the local request log:
+Read recent server usage with `account_usage` and the available balance with `account_balance` when useful. Never forecast provider credits from guesses or stale per-item prices.
 
-```bash
-python3 skills/usage-costs/scripts/usage_costs.py recent
-```
+Before every paid batch, call the matching quote tool: `characters_quote`, `frames_quote`, `videos_quote`, `auto_quote`, or `export_quote`. Show the model, item count, seconds, estimated credits, and expiry returned by the quote. Ask for a fresh explicit `yes` in chat and wait before calling its paid partner.
 
-Forecast a batch only with a known per-item credit cost:
-
-```bash
-python3 skills/usage-costs/scripts/usage_costs.py forecast \
-  --kind video \
-  --model MODEL \
-  --count 6 \
-  --credits-per-item COST
-```
-
-Show the model, item count, per-item credits, total estimated credits, and available balance when present.
-
-If the API does not provide a usable cost basis and no current public cost is supplied, report the estimate as unavailable and block generation. Never guess a credit amount.
-
-After showing a valid estimate, ask for an explicit `yes`. The approval applies only to the exact batch that was estimated.
+Pass the same payload and quote `approvalToken` to the paid tool. Keep the token only in the calls. A changed batch, retry, regeneration, next pipeline step, or expired token requires a new quote and a new `yes`.

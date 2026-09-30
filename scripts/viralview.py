@@ -45,6 +45,39 @@ ALLOWED_PATHS = {
     "/api/ugc/kie-status",
     "/api/ugc/redo-captions",
     "/api/ugc/usage",
+    "/api/ugc/source-matches",
+    "/api/ugc/meta-ad-library/search",
+    "/api/v3/characters",
+    "/api/upload",
+    "/api/upload/multipart",
+}
+V3_PROJECT_SUFFIXES = {
+    "quote",
+    "intent",
+    "context",
+    "frames",
+    "character-dispatch",
+    "generate",
+    "auto/start",
+    "auto/stop",
+    "auto/tick",
+    "export-status",
+    "product-cutout",
+    "script-score",
+    "ad-score",
+    "enrich-supplied-source",
+    "identity-product-qc",
+    "lip-motion-qc",
+}
+V3_PROJECT_PATH_PATTERN = re.compile(
+    r"^/api/v3/project/[A-Za-z0-9_-]{8,100}/(?P<suffix>[A-Za-z0-9/-]+)$"
+)
+APPROVAL_ERROR_MESSAGES = {
+    "approval_required": "Approval required - quote this exact payload and ask the user before dispatch.",
+    "approval_invalid": "Approval invalid - quote again and ask the user before dispatch.",
+    "approval_expired": "Approval expired - quote again and ask the user.",
+    "approval_replayed": "Approval already used - quote again and ask the user before retrying.",
+    "over_daily_cap": "Daily credit cap reached - no paid request was accepted.",
 }
 
 
@@ -109,7 +142,13 @@ def validate_path(path: str) -> str:
     if parsed.scheme or parsed.netloc:
         raise ViralViewError("Pass an API path, not a full URL.")
     clean_path = parsed.path.rstrip("/") or "/"
-    allowed = clean_path in ALLOWED_PATHS or clean_path.startswith("/api/ugc/ad-library/")
+    v3_match = V3_PROJECT_PATH_PATTERN.fullmatch(clean_path)
+    allowed = (
+        clean_path in ALLOWED_PATHS
+        or clean_path.startswith("/api/ugc/ad-library/")
+        or clean_path.startswith("/api/uploads/")
+        or (v3_match is not None and v3_match.group("suffix") in V3_PROJECT_SUFFIXES)
+    )
     if not allowed:
         raise ViralViewError(f"API path is not in the public pipeline allowlist: {clean_path}")
     return clean_path
@@ -160,11 +199,17 @@ def call_api(
     *,
     query: dict[str, Any] | None = None,
     data: Any = None,
+    approval_token: str | None = None,
     timeout: int = 60,
 ) -> Any:
     api_key, base_url = get_config()
     clean_path = validate_path(path)
     reject_credentials_in_payload(data)
+    paid_call = paid_generation_request(method, clean_path, data)
+    if paid_call and not approval_token:
+        raise ViralViewError("Paid request blocked locally: an approval token from a matching quote is required.")
+    if approval_token and not paid_call:
+        raise ViralViewError("An approval token can only be sent with a paid generation request.")
     query_string = urllib.parse.urlencode(
         {key: value for key, value in (query or {}).items() if value not in (None, "")},
         doseq=True,
@@ -181,6 +226,10 @@ def call_api(
     }
     if body is not None:
         headers["Content-Type"] = "application/json"
+    if approval_token:
+        if method.upper() != "POST":
+            raise ViralViewError("Approval tokens are only allowed on paid POST requests.")
+        headers["X-ViralView-Approval"] = approval_token
 
     request = urllib.request.Request(url, data=body, headers=headers, method=method.upper())
     started = time.monotonic()
@@ -192,8 +241,13 @@ def call_api(
     except urllib.error.HTTPError as error:
         status = error.code
         payload = parse_json_bytes(error.read())
-        message = payload.get("error") if isinstance(payload, dict) else None
-        raise ViralViewError(str(message or f"Viral View returned HTTP {status}."), status, payload)
+        code = payload.get("code") if isinstance(payload, dict) else None
+        message = APPROVAL_ERROR_MESSAGES.get(code) if isinstance(code, str) else None
+        message = message or (payload.get("error") if isinstance(payload, dict) else None)
+        message = str(message or f"Viral View returned HTTP {status}.")
+        if approval_token:
+            message = message.replace(approval_token, "[REDACTED_APPROVAL_TOKEN]")
+        raise ViralViewError(redact_string(message), status, payload)
     except urllib.error.URLError as error:
         raise ViralViewError(f"Could not reach Viral View: {error.reason}") from error
     finally:
@@ -219,6 +273,19 @@ def paid_generation_request(method: str, path: str, data: Any) -> bool:
         return True
     if path in {"/api/ugc/generate-kling", "/api/ugc/generate-veo"}:
         return not isinstance(data, dict) or data.get("action", "generate") == "generate"
+    match = V3_PROJECT_PATH_PATTERN.fullmatch(path)
+    if match:
+        suffix = match.group("suffix")
+        if suffix in {"character-dispatch", "auto/start"}:
+            return True
+        if suffix in {"frames", "generate"}:
+            return isinstance(data, dict) and data.get("action") == "dispatch"
+        if suffix == "product-cutout":
+            return isinstance(data, dict) and data.get("action") in {"start", "start-fallback"}
+        if suffix == "intent":
+            return isinstance(data, dict) and data.get("type") == "retry" and data.get("beat") in {"character", "frames", "generate", "export"}
+    if path == "/api/ugc/stitch-videos":
+        return not isinstance(data, dict) or data.get("previewOnly") is not True
     return False
 
 
@@ -264,13 +331,55 @@ def command_usage(_: argparse.Namespace) -> None:
 def command_request(args: argparse.Namespace) -> None:
     path = validate_path(args.path)
     data = load_json_argument(args.data_file, args.data_json)
-    if paid_generation_request(args.method, path, data) and args.confirm_paid != "YES":
-        raise ViralViewError(
-            "Paid image or video generation is blocked. Show the estimate and get an explicit user yes, "
-            "then rerun with --confirm-paid YES."
-        )
+    paid = paid_generation_request(args.method, path, data)
+    if args.quote_only and not paid:
+        raise ViralViewError("--quote-only is only valid for a paid generation request.")
+    if paid:
+        if not isinstance(data, dict):
+            raise ViralViewError("Paid requests need a JSON object so the same payload can be quoted and dispatched.")
+        project_id_value = args.quote_project_id or data.get("projectId") or ""
+        project_id = str(project_id_value).strip()
+        if args.quote_only:
+            if not project_id or not args.quote_action:
+                raise ViralViewError("Quote-only needs --quote-project-id and --quote-action for the paid payload.")
+            quote_path = f"/api/v3/project/{urllib.parse.quote(project_id, safe='')}/quote"
+            quote = call_api("POST", quote_path, data={"action": args.quote_action, "payload": data}, timeout=args.timeout)
+            print_quote(quote)
+            return
+        if args.confirm_paid != "YES":
+            raise ViralViewError(
+                "Paid image, video, or export request blocked locally. First run the same request with --quote-only, "
+                "show the quote, and get an explicit user yes."
+            )
+        if not args.approval_token:
+            raise ViralViewError("Paid request has no approval token. Quote this exact payload, ask the user, and pass --approval-token.")
+        if not project_id or not args.quote_action:
+            raise ViralViewError("Paid request needs --quote-project-id and --quote-action for a matching quote.")
     query = dict(item.split("=", 1) for item in (args.query or []))
-    print_json(call_api(args.method, path, query=query, data=data, timeout=args.timeout))
+    print_json(call_api(
+        args.method, path, query=query, data=data,
+        approval_token=args.approval_token if paid else None,
+        timeout=args.timeout,
+    ))
+
+
+def print_quote(quote: Any) -> None:
+    if not isinstance(quote, dict):
+        raise ViralViewError("Viral View returned an invalid paid quote.")
+    visible_fields = (
+        "action", "model", "items", "creditsEach", "creditsTotal",
+        "approvalToken", "expiresAt",
+    )
+    safe_quote = {field: quote[field] for field in visible_fields if field in quote}
+    items = safe_quote.get("items")
+    safe_quote["itemCount"] = len(items) if isinstance(items, list) else 0
+    durations = [
+        float(item["durationSeconds"])
+        for item in items if isinstance(item, dict) and isinstance(item.get("durationSeconds"), (int, float))
+    ] if isinstance(items, list) else []
+    safe_quote["seconds"] = sum(durations)
+    safe_quote["estimatedCredits"] = quote.get("creditsTotal")
+    print(json.dumps(safe_quote, indent=2, sort_keys=True))
 
 
 def command_poll_get(args: argparse.Namespace) -> None:
@@ -347,6 +456,16 @@ def build_parser() -> argparse.ArgumentParser:
     request.add_argument("--data-json")
     request.add_argument("--timeout", type=int, default=120)
     request.add_argument("--confirm-paid", default="NO", choices=["NO", "YES"])
+    request.add_argument("--quote-only", action="store_true", help="Quote a paid payload without dispatching it.")
+    request.add_argument("--quote-project-id", default="", help="Project ID for the V3 paid quote route.")
+    request.add_argument(
+        "--quote-action",
+        choices=[
+            "characters", "frames", "frame_remake", "scene_videos", "scene_regenerate",
+            "lip_redo", "auto", "overlay", "export", "product_cutout", "intent_retry",
+        ],
+    )
+    request.add_argument("--approval-token", default="", help="Short-lived quote token sent only in X-ViralView-Approval.")
     request.set_defaults(func=command_request)
 
     poll_get = subparsers.add_parser("poll-get", help="Poll a GET job endpoint until it completes.")
