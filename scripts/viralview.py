@@ -284,8 +284,6 @@ def paid_generation_request(method: str, path: str, data: Any) -> bool:
             return isinstance(data, dict) and data.get("action") in {"start", "start-fallback"}
         if suffix == "intent":
             return isinstance(data, dict) and data.get("type") == "retry" and data.get("beat") in {"character", "frames", "generate", "export"}
-    if path == "/api/ugc/stitch-videos":
-        return not isinstance(data, dict) or data.get("previewOnly") is not True
     return False
 
 
@@ -348,7 +346,7 @@ def command_request(args: argparse.Namespace) -> None:
             return
         if args.confirm_paid != "YES":
             raise ViralViewError(
-                "Paid image, video, or export request blocked locally. First run the same request with --quote-only, "
+                "Paid image or video request blocked locally. First run the same request with --quote-only, "
                 "show the quote, and get an explicit user yes."
             )
         if not args.approval_token:
@@ -462,7 +460,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--quote-action",
         choices=[
             "characters", "frames", "frame_remake", "scene_videos", "scene_regenerate",
-            "lip_redo", "auto", "overlay", "export", "product_cutout", "intent_retry",
+            "lip_redo", "auto", "overlay", "product_cutout", "intent_retry",
         ],
     )
     request.add_argument("--approval-token", default="", help="Short-lived quote token sent only in X-ViralView-Approval.")

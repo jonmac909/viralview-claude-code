@@ -1,6 +1,6 @@
 # Spend and approval policy
 
-Every image or video generation batch is a paid action. Product cutouts, persisted paid retries, automatic paid steps, and final exports are also paid when the app quotes them.
+Every image or video generation batch is a paid action. Product cutouts, persisted paid retries, and automatic paid steps are also paid actions. Final stitch/export renders are non-credit render jobs and do not use the paid quote flow.
 
 Before each batch:
 
@@ -24,4 +24,4 @@ The app binds the token to one user/key, project, action, and canonical payload.
 
 For Auto, the quote is derived from the project's persisted next-step plan. Supply a stable `requestId` and the intended `workspacePath` to both `auto_quote` and `auto_start`; do not invent item lists. If the saved project changes, request a fresh quote and a new `yes`.
 
-This policy applies to character generation, frame generation/remakes, scene video generation/regeneration, automatic paid steps, overlays, product cutouts, persisted paid retries, and exports when the app quotes them as paid. Keep `--confirm-paid YES` as an additional local guard for paid calls made through `scripts/viralview.py`.
+This policy applies to character generation, frame generation/remakes, scene video generation/regeneration, automatic paid steps, overlays, product cutouts, and persisted paid retries. Final export rendering through `export_start` does not require a provider-credit quote or paid approval token. Keep `--confirm-paid YES` as an additional local guard for paid calls made through `scripts/viralview.py`.

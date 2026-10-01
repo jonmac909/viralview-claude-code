@@ -54,13 +54,13 @@ The agent scans the product, presents source candidates, asks you to approve sce
 
 ## Mandatory spend control
 
-Every paid image or video batch requires its own confirmation. Product cutouts and final exports use the same fresh quote and confirmation rule:
+Every paid image or video batch requires its own confirmation. Product cutouts use the same fresh quote and confirmation rule. Final exports are render jobs and do not spend provider credits:
 
 1. The agent shows the model, item count, per-item estimate, and total estimated credits.
 2. You reply `yes` in the current chat.
 3. The client submits only that exact batch.
 
-A retry, regeneration, model change, changed batch size, frame stage, and video stage each need a new estimate and a new `yes`. The client blocks direct image or video requests without the confirmation flag.
+A retry, regeneration, model change, changed batch size, frame stage, and video stage each need a new estimate and a new `yes`. The client blocks direct image or video requests without the confirmation flag. Start an export with `export_start`, then poll `export_status`.
 
 ## Skills
 

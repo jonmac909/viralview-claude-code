@@ -1,6 +1,6 @@
 ---
 name: clone-viral-ad
-description: Orchestrate the complete Viral View V6 product-to-video flow with project review, source selection, scene analysis, script approval, characters, frames, videos, and quote-gated export. Use when the user asks to clone or remake an ad.
+description: Orchestrate the complete Viral View V6 product-to-video flow with project review, source selection, scene analysis, script approval, characters, frames, videos, and export. Use when the user asks to clone or remake an ad.
 ---
 
 # Clone a viral ad
@@ -18,11 +18,11 @@ Read `../../shared/spend-policy.md` and `../../shared/api-contract.md` first. Us
 7. Prepare the character prompt and call `characters_quote`. Show the model, image count, duration if present, estimated credits, and expiry. Ask for a fresh explicit `yes` in chat. After the user says yes, call `characters_generate` with the exact same payload and returned `approvalToken`. Present the options and wait for the user's selection before `character_lock` or `character_use_saved`.
 8. Call `frames_quote` for all or selected scenes, with the requested model and product-photo choice. Show the estimate and ask for a new explicit `yes`. Then call `frames_generate` with the exact quoted payload and token. Let the user choose or review the finished frames before moving on.
 9. Call `videos_quote` with `scene_videos` for a batch or `scene_regenerate` for one replacement. Include each scene, model, duration, and quality. Show model, item count, seconds, and estimated credits; wait for a new explicit `yes`; then call `videos_generate` with the exact same payload and token.
-10. Call `export_quote`, show the export estimate, and wait for an explicit `yes`. Call `export_start` with the same payload and token, poll `export_status`, and use `export_download` for the returned same-origin upload path.
+10. Confirm the approved scene payload with the user, then call `export_start` to start the non-credit render. Poll `export_status`, and use `export_download` for the returned same-origin upload path.
 
 ## Paid batch rule
 
-Every character, frame, video, regeneration, automatic paid step, and export batch gets its own quote and a new explicit user `yes`. Do not call a paid tool without the current quote's token. Never reuse approval after a changed payload, failed or cancelled call, retry, or new batch. Do not store or log approval tokens.
+Every character, frame, video, regeneration, and automatic paid step gets its own quote and a new explicit user `yes`. Do not call a paid tool without the current quote's token. Never reuse approval after a changed payload, failed or cancelled call, retry, or new batch. Do not store or log approval tokens. Export rendering is non-credit and has no quote token.
 
 ## Failure handling
 

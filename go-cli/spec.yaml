@@ -328,14 +328,10 @@ resources:
         method: POST
         path: "/api/ugc/project"
         description: "Save the current V6 app project snapshot with editor state, trims, selected scenes, and caption style"
-      export_quote:
-        method: POST
-        path: "/api/v3/project/{id}/quote"
-        description: "Quote action export before final rendering"
       export_start:
         method: POST
         path: "/api/ugc/stitch-videos"
-        description: "Paid final export. Requires X-ViralView-Approval from the matching quote payload"
+        description: "Start the final non-credit render without a paid quote or approval token"
       export_status:
         method: GET
         path: "/api/v3/project/{id}/export-status"

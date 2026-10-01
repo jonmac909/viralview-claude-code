@@ -966,37 +966,8 @@
       "paid": false
     },
     {
-      "name": "export_quote",
-      "description": "Quote action export before final rendering",
-      "method": "POST",
-      "path": "/api/v3/project/{id}/quote",
-      "params": [
-        {
-          "name": "projectId",
-          "type": "string",
-          "location": "tool",
-          "description": "Owned Viral View project ID",
-          "required": true
-        },
-        {
-          "name": "payload",
-          "type": "object",
-          "location": "tool",
-          "description": "JSON request body; paid calls must reuse the exact quote payload",
-          "required": true
-        }
-      ],
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "openWorldHint": true
-      },
-      "paid": false,
-      "quote_action": "export"
-    },
-    {
       "name": "export_start",
-      "description": "PAID - spends provider credits. Ask the user to approve the quote shown by export_quote before calling. Paid final export. Requires X-ViralView-Approval from the matching quote payload",
+      "description": "Start a V6 final video render from the supplied approved scene payload. This render does not spend provider credits and does not require a paid approval token.",
       "method": "POST",
       "path": "/api/ugc/stitch-videos",
       "params": [
@@ -1011,25 +982,16 @@
           "name": "payload",
           "type": "object",
           "location": "tool",
-          "description": "JSON request body; paid calls must reuse the exact quote payload",
-          "required": true
-        },
-        {
-          "name": "approvalToken",
-          "type": "string",
-          "location": "tool",
-          "description": "Short-lived token from the matching quote; sent only in X-ViralView-Approval",
+          "description": "JSON request body",
           "required": true
         }
       ],
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": true,
+        "destructiveHint": false,
         "openWorldHint": true
       },
-      "paid": true,
-      "quote_action": "export",
-      "approval_header": "X-ViralView-Approval"
+      "paid": false
     },
     {
       "name": "export_status",

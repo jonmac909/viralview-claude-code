@@ -24,7 +24,7 @@ This repository runs Viral View workflows from Codex and other agents that suppo
 ## Hard rules
 
 - Before every paid image or video generation batch, show the estimated credits and get an explicit user `yes` in chat. A previous approval never carries forward.
-- Apply the same fresh quote and explicit `yes` requirement to other paid provider-credit actions, including product cutout and export.
+- Apply the same fresh quote and explicit `yes` requirement to other paid provider-credit actions, including product cutout.
 - Stop for the user's choice after presenting character options and detected scene cuts.
 - Never send a generation request with an estimate missing or an approval inferred from context.
 - Never ask for or store an upstream provider key. The only supported credential is `VIRALVIEW_API_KEY` in the local `.env` file.

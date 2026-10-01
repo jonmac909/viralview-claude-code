@@ -15,7 +15,7 @@ The CLI and MCP support these workflows:
 - Scan a public product page for editable facts.
 - Select and analyze source videos, draft/edit/approve scripts, manage characters, prepare and generate frames, generate videos, run/stop automation, score projects, update the editor snapshot, and export/download project videos.
 
-Paid generation, product cutout, retry, and export tools use a read-only quote followed by a separate paid call. The paid call requires the short-lived `approvalToken` returned by that quote and sends it only in `X-ViralView-Approval`. MCP annotations and descriptions flag paid tools for user approval; the app's one-time token and daily cap enforce the server-side boundary. `scripts/viralview.py` also keeps `--confirm-paid YES` as an extra local guard.
+Paid generation, product cutout, and retry tools use a read-only quote followed by a separate paid call. The paid call requires the short-lived `approvalToken` returned by that quote and sends it only in `X-ViralView-Approval`. MCP annotations and descriptions flag paid tools for user approval; the app's one-time token and daily cap enforce the server-side boundary. Final export rendering uses the non-credit `/api/ugc/stitch-videos` route through `export_start` without a quote or approval token. `scripts/viralview.py` also keeps `--confirm-paid YES` as an extra local guard for paid calls.
 
 ## Quick Start
 

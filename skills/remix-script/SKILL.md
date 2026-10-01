@@ -13,4 +13,4 @@ Use `source_analysis` results, the saved scene map, and confirmed product-page f
 4. After requested changes, save the draft with `script_draft_save`. Use `script_edit_line` for a specific line edit.
 5. Call `script_approve` only after the user explicitly approves the saved script.
 
-Script approval does not authorize character, frame, video, or export spending. Each paid batch still needs its own quote and an explicit `yes`.
+Script approval does not authorize character, frame, or video spending. Each paid batch still needs its own quote and an explicit `yes`. Final export rendering is non-credit.

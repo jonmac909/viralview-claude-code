@@ -15,4 +15,4 @@ Use this prompt in `script_draft`:
 
 Show the draft scene by scene and flag unsupported claims or pacing warnings. Do not silently expand a short line to make it sound more persuasive. Save with `script_draft_save`, edit with `script_edit_line`, and call `script_approve` only after the user approves the text.
 
-This skill does not approve image, video, or export spending. Each paid batch still needs its own quote and a fresh explicit user `yes`.
+This skill does not approve image or video spending. Each paid batch still needs its own quote and a fresh explicit user `yes`. Final export rendering is non-credit.

@@ -1,6 +1,6 @@
 ---
 name: export-video
-description: Retrieve a completed Viral View V6 export or start a new quote-approved export from the active project's approved scene videos.
+description: Retrieve a completed Viral View V6 export or start a non-credit render from the active project's approved scene videos.
 ---
 
 # export-video

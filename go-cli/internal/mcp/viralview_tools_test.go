@@ -34,7 +34,6 @@ func TestRegisterViralViewToolsMatchesReviewedContract(t *testing.T) {
 		"characters_quote",
 		"editor_update",
 		"export_download",
-		"export_quote",
 		"export_start",
 		"export_status",
 		"frame_edit",

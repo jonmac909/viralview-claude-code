@@ -24,7 +24,6 @@ func TestV6PaidToolRefusesMissingApprovalBeforeClientFactory(t *testing.T) {
 		{name: "frames_generate", method: "POST", path: "/api/v3/project/{id}/frames", project: true, payload: true, approval: true},
 		{name: "videos_generate", method: "POST", path: "/api/v3/project/{id}/generate", project: true, payload: true, approval: true},
 		{name: "auto_start", method: "POST", path: "/api/v3/project/{id}/auto/start", project: true, payload: true, approval: true},
-		{name: "export_start", method: "POST", path: "/api/ugc/stitch-videos", project: true, payload: true, approval: true},
 		{name: "intent_retry", method: "POST", path: "/api/v3/project/{id}/intent", project: true, payload: true, approval: true},
 		{name: "product_cutout", method: "POST", path: "/api/v3/project/{id}/product-cutout", project: true, payload: true, approval: true},
 	}
@@ -124,11 +123,61 @@ func TestV6IntentRetryAcceptsPaidExportBeat(t *testing.T) {
 	}
 }
 
+func TestV6ExportStartIsNonPaidWrite(t *testing.T) {
+	type requestRecord struct {
+		path   string
+		header string
+		body   map[string]any
+	}
+	var received requestRecord
+	fake := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("read request body: %v", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if err := json.Unmarshal(body, &received.body); err != nil {
+			t.Errorf("decode request body: %v", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		received.path = r.URL.Path
+		received.header = r.Header.Get(viralViewApprovalHeader)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `{"success":true,"jobId":"render-job-1"}`)
+	}))
+	defer fake.Close()
+
+	payload := map[string]any{"projectId": "project_12345678", "videoUrls": []any{"/api/uploads/scene-1.mp4"}}
+	factory := func(context.Context) (*client.Client, *platform.Session, error) {
+		cfg := &config.Config{BaseURL: fake.URL, ViralviewApiKey: "vv_live_" + strings.Repeat("0", 32)}
+		return client.New(cfg, 3*time.Second, 0), nil, nil
+	}
+	handler := v6ToolHandler(v6ToolSpec{
+		name: "export_start", method: "POST", path: "/api/ugc/stitch-videos",
+		project: true, payload: true,
+	}, factory)
+	result, err := handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"projectId": "project_12345678", "payload": payload},
+	}})
+	if err != nil {
+		t.Fatalf("handler returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("export start failed without an approval token: %s", mcpTextContent(t, result))
+	}
+	if received.path != "/api/ugc/stitch-videos" || received.header != "" || !equalJSONValue(received.body, payload) {
+		t.Fatalf("export request path/header/body = %q/%q/%#v", received.path, received.header, received.body)
+	}
+}
+
 func TestV6QuoteThenDispatchUsesSamePayloadAndApprovalHeader(t *testing.T) {
 	type requestRecord struct {
-		path  string
+		path   string
 		header string
-		body  map[string]any
+		body   map[string]any
 	}
 	var mu sync.Mutex
 	var requests []requestRecord
@@ -241,7 +290,7 @@ func TestV6ToolAnnotationsAndPaidDescriptions(t *testing.T) {
 		"account_balance", "account_status", "account_usage", "library_get", "library_search",
 		"projects_get", "projects_list", "task_status_export_status", "task_status_extraction_status",
 		"task_status_image_status", "product_scan", "project_status", "source_matches", "characters_quote", "character_saved_list",
-		"frames_quote", "videos_quote", "auto_quote", "export_quote", "export_status", "export_download",
+		"frames_quote", "videos_quote", "auto_quote", "export_status", "export_download",
 		"meta_ad_library_search", "intent_retry_quote", "product_cutout_quote", "product_cutout_status",
 	} {
 		tool, ok := tools[name]
@@ -253,7 +302,7 @@ func TestV6ToolAnnotationsAndPaidDescriptions(t *testing.T) {
 			t.Errorf("%s readOnlyHint = %v, want true", name, annotations["readOnlyHint"])
 		}
 	}
-	paidNames := []string{"characters_generate", "frames_generate", "videos_generate", "auto_start", "export_start", "intent_retry", "product_cutout"}
+	paidNames := []string{"characters_generate", "frames_generate", "videos_generate", "auto_start", "intent_retry", "product_cutout"}
 	for _, name := range paidNames {
 		tool, ok := tools[name]
 		if !ok {
@@ -274,6 +323,30 @@ func TestV6ToolAnnotationsAndPaidDescriptions(t *testing.T) {
 				t.Errorf("paid tool %s annotations = %#v", name, annotations)
 			}
 		}
+	}
+	exportTool, ok := tools["export_start"]
+	if !ok {
+		t.Fatal("export_start missing")
+	}
+	if strings.HasPrefix(exportTool.Tool.Description, "PAID - spends provider credits.") {
+		t.Errorf("export_start is incorrectly marked paid: %q", exportTool.Tool.Description)
+	}
+	exportAnnotations := v6ToolAnnotations(t, exportTool.Tool)
+	if exportAnnotations["readOnlyHint"] != false || exportAnnotations["destructiveHint"] != false || exportAnnotations["openWorldHint"] != true {
+		t.Errorf("export_start annotations = %#v", exportAnnotations)
+	}
+	encoded, err := json.Marshal(exportTool.Tool)
+	if err != nil {
+		t.Fatalf("marshal export_start tool: %v", err)
+	}
+	var toolDefinition map[string]any
+	if err := json.Unmarshal(encoded, &toolDefinition); err != nil {
+		t.Fatalf("decode export_start tool: %v", err)
+	}
+	inputSchema, _ := toolDefinition["inputSchema"].(map[string]any)
+	properties, _ := inputSchema["properties"].(map[string]any)
+	if _, hasApprovalToken := properties["approvalToken"]; hasApprovalToken {
+		t.Error("export_start input schema must not expose an approvalToken parameter")
 	}
 }
 

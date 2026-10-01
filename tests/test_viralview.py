@@ -138,6 +138,11 @@ class ViralViewClientTests(unittest.TestCase):
         self.assertTrue(viralview.paid_generation_request(
             "POST", "/api/v3/project/project_12345678/intent", {"type": "retry", "beat": "export"}
         ))
+        self.assertFalse(viralview.paid_generation_request(
+            "POST",
+            "/api/ugc/stitch-videos",
+            {"projectId": "project_12345678", "videoUrls": ["/api/uploads/scene.mp4"]},
+        ))
 
     def test_v3_quote_actions_are_available_to_cli(self) -> None:
         for quote_action in ("product_cutout", "intent_retry"):
@@ -147,6 +152,28 @@ class ViralViewClientTests(unittest.TestCase):
                 "--quote-action", quote_action,
             ])
             self.assertEqual(args.quote_action, quote_action)
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stderr(io.StringIO()):
+                viralview.build_parser().parse_args([
+                    "request", "POST", "/api/ugc/stitch-videos", "--quote-only",
+                    "--quote-project-id", "project_12345678", "--quote-action", "export",
+                ])
+
+    def test_export_render_does_not_need_paid_approval(self) -> None:
+        payload = {"projectId": "project_12345678", "videoUrls": ["/api/uploads/scene.mp4"]}
+        args = argparse.Namespace(
+            method="POST", path="/api/ugc/stitch-videos", data_file=None,
+            data_json=json.dumps(payload), query=[], timeout=20,
+            confirm_paid="NO", quote_only=False, quote_project_id="", quote_action=None,
+            approval_token="",
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            viralview.command_request(args)
+        self.assertEqual(len(ApiHandler.requests), 1)
+        request = ApiHandler.requests[0]
+        self.assertEqual(request["path"], "/api/ugc/stitch-videos")
+        self.assertEqual(request["body"], payload)
+        self.assertEqual(request["approval"], "")
 
     def test_paid_call_without_approval_is_refused_before_request(self) -> None:
         with self.assertRaisesRegex(viralview.ViralViewError, "approval token"):

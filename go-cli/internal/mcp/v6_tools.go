@@ -31,19 +31,19 @@ var (
 type v6HandlerFactory func(context.Context) (*client.Client, *platform.Session, error)
 
 type v6ToolSpec struct {
-	name          string
-	description   string
-	method        string
-	path          string
-	project       bool
-	queryProject  bool
-	payload       bool
-	readOnly      bool
-	quoteAction   string
-	actionArg     bool
-	approval      bool
-	staticBody    map[string]any
-	download      bool
+	name         string
+	description  string
+	method       string
+	path         string
+	project      bool
+	queryProject bool
+	payload      bool
+	readOnly     bool
+	quoteAction  string
+	actionArg    bool
+	approval     bool
+	staticBody   map[string]any
+	download     bool
 }
 
 func RegisterV6Tools(s *server.MCPServer) {
@@ -79,8 +79,7 @@ func RegisterV6Tools(s *server.MCPServer) {
 	addV6Tool(s, v6ToolSpec{name: "product_cutout_status", description: "Poll product photo background removal without starting a new job.", method: "POST", path: "/api/v3/project/{id}/product-cutout", project: true, payload: true, readOnly: true})
 	addV6Tool(s, v6ToolSpec{name: "ad_score", description: "Score the current project's completed ad through its V3 score endpoint.", method: "POST", path: "/api/v3/project/{id}/ad-score", project: true, payload: true})
 	addV6Tool(s, v6ToolSpec{name: "editor_update", description: "Save the latest V6 project/editor snapshot through the app's project save API. Preserve all unrelated fields; put trim, scene, and caption edits in the app fields returned by project_status.", method: "POST", path: "/api/ugc/project", payload: true})
-	addV6Tool(s, v6ToolSpec{name: "export_quote", description: "Quote the final export. Include projectId, saved scenes or videoUrls, and item identifiers in the payload; reuse that exact payload for export_start.", method: "POST", path: "/api/v3/project/{id}/quote", project: true, payload: true, readOnly: true, quoteAction: "export"})
-	addV6Tool(s, v6ToolSpec{name: "export_start", description: paidDescription("export_quote"), method: "POST", path: "/api/ugc/stitch-videos", project: true, payload: true, approval: true})
+	addV6Tool(s, v6ToolSpec{name: "export_start", description: "Start a V6 final video render from the supplied approved scene payload. This render does not spend provider credits and does not require a paid approval token.", method: "POST", path: "/api/ugc/stitch-videos", project: true, payload: true})
 	addV6Tool(s, v6ToolSpec{name: "export_status", description: "Poll the saved V6 export job for a project.", method: "GET", path: "/api/v3/project/{id}/export-status", project: true, readOnly: true})
 	addV6Tool(s, v6ToolSpec{name: "export_download", description: "Download an export from a same-origin /api/uploads path returned for this owned project. Returns a base64 binary envelope.", method: "GET", path: "", project: true, download: true, readOnly: true})
 	addV6Tool(s, v6ToolSpec{name: "meta_ad_library_search", description: "Search the Meta Ad Library using its public Viral View search route. Pass supported search filters in payload.", method: "GET", path: "/api/ugc/meta-ad-library/search", payload: true, readOnly: true})
