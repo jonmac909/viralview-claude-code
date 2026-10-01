@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Swap Rewrite"
+  short_description: "Rewrite a source ad with grounded product facts"
+  default_prompt: "Use $product-swap-rewrite to preserve the source ad's beats and length while replacing claims only with facts from my scanned product page."

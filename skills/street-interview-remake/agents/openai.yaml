@@ -1,0 +1,4 @@
+interface:
+  display_name: "Street Interview Remake"
+  short_description: "Remake a multi-person interview ad"
+  default_prompt: "Use $street-interview-remake to adapt this street interview ad for my product, waiting for a new quote approval before each paid batch."

@@ -1,6 +1,6 @@
 ---
 name: export-video
-description: Retrieve an existing Viral View project's finished video or submit and poll a final stitch export from approved scene videos. Use when the user asks for the final MP4, wants to re-export a project, or needs the download URL for a completed clone.
+description: Retrieve a completed Viral View V6 export or start a non-credit render from the active project's approved scene videos.
 ---
 
 # export-video

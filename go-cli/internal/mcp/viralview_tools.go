@@ -66,6 +66,7 @@ func RegisterViralViewTools(s *server.MCPServer) {
 		mcplib.NewTool("product_scan",
 			mcplib.WithDescription("Extract editable product facts from a public product URL. Required: url. Returns the APIResponse."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Public product page URL")),
+			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -121,4 +122,5 @@ func RegisterViralViewTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("GET", "/api/ugc/generate-overlay", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "task-id", WireName: "taskId", Location: "query"}, {PublicName: "source-image-url", WireName: "sourceImageUrl", Location: "query"}}, []string{}),
 	)
+	RegisterV6Tools(s)
 }

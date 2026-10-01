@@ -3,7 +3,7 @@
   "name": "viralview-pp-mcp",
   "display_name": "Viralview",
   "version": "0.1.0",
-  "description": "Safe local CLI and MCP for the Viral View public API",
+  "description": "Viral View V6 workflow MCP and local CLI with per-batch paid approval",
   "author": {
     "name": "CLI Printing Press"
   },

@@ -1,5 +1,5 @@
 name: viralview
-description: "Safe local CLI and MCP for the Viral View public API"
+description: "Viral View V6 workflow MCP and local CLI with per-batch paid approval"
 version: "0.1.0"
 base_url: "https://app.viralview.io"
 health_check_path: "/api/ugc/kie-status"
@@ -15,11 +15,10 @@ config:
   format: toml
   path: "~/.config/viralview-pp-cli/config.toml"
 
-# The public API requires explicit in-chat approval for paid image and video
-# submissions. Those endpoints deliberately stay in scripts/viralview.py,
-# which enforces --confirm-paid YES. This generated surface is safe to expose
-# through a local stdio MCP because it contains only inspection, polling, and
-# non-billed product-scanning commands.
+# Paid V6 dispatches require a short-lived approvalToken from the project's
+# quote route. The MCP quote tools are read-only; dispatch tools refuse locally
+# without the token and send it only in X-ViralView-Approval. The app must also
+# enforce the token against the exact quote payload before provider dispatch.
 learn:
   disabled: true
 
@@ -197,6 +196,158 @@ resources:
         response:
           type: object
           item: APIResponse
+
+  v6:
+    description: "Viral View V6 project lifecycle and quote-gated generation endpoints"
+    endpoints:
+      project_create:
+        method: POST
+        path: "/api/ugc/project"
+        description: "Create or save a project using the app project snapshot contract"
+      project_status:
+        method: GET
+        path: "/api/v3/project/{id}/context"
+        description: "Load the computed project workflow context and next actions"
+      source_matches:
+        method: POST
+        path: "/api/ugc/source-matches"
+        description: "Rank Ad Library candidates from product facts and source-match context"
+      source_select:
+        method: POST
+        path: "/api/v3/project/{id}/intent"
+        description: "Select a library or supplied source with select_source or set_supplied_source intent"
+      source_extract:
+        method: POST
+        path: "/api/ugc/extract-video"
+        description: "Start extracting a linked source video before analysis"
+      source_analysis:
+        method: POST
+        path: "/api/ugc/analyze-video"
+        description: "Analyze source scenes, timing, claims, proof, hook, and transcript"
+      source_analysis_save:
+        method: POST
+        path: "/api/v3/project/{id}/intent"
+        description: "Persist supplied-source transcript and scene timing with save_supplied_source_enrichment intent"
+      script_draft:
+        method: POST
+        path: "/api/ugc/rewrite-script"
+        description: "Draft or rewrite dialogue from source analysis and target product facts"
+      script_draft_save:
+        method: POST
+        path: "/api/v3/project/{id}/intent"
+        description: "Persist script text and scenes with save_script_draft intent"
+      script_edit_line:
+        method: POST
+        path: "/api/v3/project/{id}/intent"
+        description: "Edit script dialogue with edit_script intent"
+      script_approve:
+        method: POST
+        path: "/api/v3/project/{id}/intent"
+        description: "Approve the saved script beat with approve intent"
+      script_score:
+        method: POST
+        path: "/api/v3/project/{id}/script-score"
+        description: "Score the saved project script"
+      characters_quote:
+        method: POST
+        path: "/api/v3/project/{id}/quote"
+        description: "Quote action characters before character-dispatch"
+      characters_generate:
+        method: POST
+        path: "/api/v3/project/{id}/character-dispatch"
+        description: "Paid character dispatch. Requires X-ViralView-Approval from the matching quote payload"
+      character_lock:
+        method: POST
+        path: "/api/ugc/lock-character"
+        description: "Save a reusable character identity lock"
+      character_saved_list:
+        method: GET
+        path: "/api/v3/characters"
+        description: "List saved character candidates"
+      character_use_saved:
+        method: POST
+        path: "/api/v3/project/{id}/intent"
+        description: "Reuse a saved character with reuse_saved_character intent"
+      frames_quote:
+        method: POST
+        path: "/api/v3/project/{id}/quote"
+        description: "Quote frames or frame_remake before image dispatch"
+      frames_generate:
+        method: POST
+        path: "/api/v3/project/{id}/frames"
+        description: "Paid V6 frame dispatch. Requires X-ViralView-Approval from the matching quote payload"
+      frame_edit:
+        method: POST
+        path: "/api/v3/project/{id}/frames"
+        description: "Prepare a scene frame prompt without dispatching image generation"
+      videos_quote:
+        method: POST
+        path: "/api/v3/project/{id}/quote"
+        description: "Quote scene_videos, scene_regenerate, or lip_redo before video dispatch"
+      videos_generate:
+        method: POST
+        path: "/api/v3/project/{id}/generate"
+        description: "Paid V6 video dispatch. Requires X-ViralView-Approval from the matching quote payload"
+      auto_quote:
+        method: POST
+        path: "/api/v3/project/{id}/quote"
+        description: "Quote the persisted V6 auto plan; pass the same stable requestId and workspacePath to auto_start"
+      auto_start:
+        method: POST
+        path: "/api/v3/project/{id}/auto/start"
+        description: "Start paid V6 auto processing after quote approval"
+      auto_stop:
+        method: POST
+        path: "/api/v3/project/{id}/auto/stop"
+        description: "Stop an active V6 auto run"
+      intent_retry_quote:
+        method: POST
+        path: "/api/v3/project/{id}/quote"
+        description: "Quote a persisted paid character, frame, video, or export retry before retry intent"
+      intent_retry:
+        method: POST
+        path: "/api/v3/project/{id}/intent"
+        description: "Paid persisted retry intent. Requires X-ViralView-Approval from matching quote"
+      product_cutout_quote:
+        method: POST
+        path: "/api/v3/project/{id}/quote"
+        description: "Quote removal of a selected product image background"
+      product_cutout:
+        method: POST
+        path: "/api/v3/project/{id}/product-cutout"
+        description: "Paid product image background removal. Requires X-ViralView-Approval"
+      product_cutout_status:
+        method: POST
+        path: "/api/v3/project/{id}/product-cutout"
+        description: "Poll the selected product image background removal job"
+      ad_score:
+        method: POST
+        path: "/api/v3/project/{id}/ad-score"
+        description: "Score a completed project video"
+      editor_update:
+        method: POST
+        path: "/api/ugc/project"
+        description: "Save the current V6 app project snapshot with editor state, trims, selected scenes, and caption style"
+      export_start:
+        method: POST
+        path: "/api/ugc/stitch-videos"
+        description: "Start the final non-credit render without a paid quote or approval token"
+      export_status:
+        method: GET
+        path: "/api/v3/project/{id}/export-status"
+        description: "Poll the saved export job for an owned project"
+      export_download:
+        method: GET
+        path: "/api/uploads/{key}"
+        description: "Download the caller's own exported video via the developer API upload route"
+      meta_ad_library_search:
+        method: GET
+        path: "/api/ugc/meta-ad-library/search"
+        description: "Search the Meta Ad Library"
+      caption_redo:
+        method: POST
+        path: "/api/ugc/redo-captions"
+        description: "Run the existing caption redo operation"
 
 types:
   APIResponse:

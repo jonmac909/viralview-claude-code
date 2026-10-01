@@ -26,6 +26,9 @@ PATTERNS = {
     "Bearer value": re.compile(rb"Authorization\s*:\s*Bearer\s+[A-Za-z0-9._~+/-]{12,}", re.IGNORECASE),
 }
 SENSITIVE_NAMES = re.compile(r"(^|/)(\.env|id_rsa|id_ed25519|credentials|secrets?)(\.|$)|\.(pem|p12|key)$", re.IGNORECASE)
+# This is implementation source for the local credential manager, not a
+# credential store. Its contents remain covered by all byte-pattern scans.
+SAFE_SENSITIVE_NAME_SOURCES = {"go-cli/internal/cliutil/credentials.go"}
 
 
 def public_files() -> list[Path]:
@@ -66,7 +69,7 @@ def main() -> int:
         scan_bytes(str(path.relative_to(ROOT)), path.read_bytes(), findings)
 
     for name in tracked_files():
-        if name != ".env.example" and SENSITIVE_NAMES.search(name):
+        if name != ".env.example" and name not in SAFE_SENSITIVE_NAME_SOURCES and SENSITIVE_NAMES.search(name):
             findings.append(f"{name}: sensitive filename is tracked")
         tracked_path = ROOT / name
         if tracked_path.is_file():
